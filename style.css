@@ -1,0 +1,207 @@
+/* ============================================
+   BLOCKCRAFT STUDIO — design tokens
+   ============================================ */
+:root{
+  --moss:    #2F8F5B;
+  --moss-dark:#1F6B41;
+  --dirt:    #8B5A2B;
+  --sky:     #5FB4E0;
+  --sky-dark:#3A8FBE;
+  --stone:   #4A4A52;
+  --cream:   #FBF7EC;
+  --paper:   #FFFFFF;
+  --sunset:  #F2994A;
+  --ink:     #232320;
+  --line:    #232320;
+  --radius:  6px;
+  --shadow-offset: 4px;
+  --font-display: 'Press Start 2P', monospace;
+  --font-body: 'Rubik', system-ui, sans-serif;
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--cream);
+  background-image:
+    linear-gradient(rgba(35,35,32,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(35,35,32,0.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+  color:var(--ink);
+  font-family:var(--font-body);
+  line-height:1.55;
+}
+h1,h2,h3,.display{
+  font-family:var(--font-display);
+  line-height:1.5;
+  letter-spacing:0.5px;
+}
+h1{font-size:1.5rem;}
+h2{font-size:1.15rem; margin-bottom:1.2rem;}
+h3{font-size:0.85rem;}
+a{color:var(--moss-dark);}
+p{max-width:62ch;}
+img{max-width:100%;display:block;}
+
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px;}
+
+/* ---------- Buttons & blocky cards ---------- */
+.btn{
+  display:inline-block;
+  font-family:var(--font-display);
+  font-size:0.7rem;
+  background:var(--sunset);
+  color:var(--ink);
+  border:3px solid var(--line);
+  padding:14px 20px;
+  text-decoration:none;
+  box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--line);
+  cursor:pointer;
+  transition: transform .08s ease, box-shadow .08s ease;
+}
+.btn:hover{transform:translate(-2px,-2px); box-shadow: calc(var(--shadow-offset) + 2px) calc(var(--shadow-offset) + 2px) 0 var(--line);}
+.btn:active{transform:translate(0,0); box-shadow:1px 1px 0 var(--line);}
+.btn.secondary{background:var(--paper);}
+.btn.green{background:var(--moss); color:#fff;}
+.btn.sky{background:var(--sky); color:#0c2530;}
+.btn.small{padding:8px 12px; font-size:0.6rem;}
+.btn.danger{background:#e0644c; color:#fff;}
+
+.card{
+  background:var(--paper);
+  border:3px solid var(--line);
+  box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--line);
+  padding:20px;
+}
+
+input, textarea, select{
+  font-family:var(--font-body);
+  font-size:0.95rem;
+  border:3px solid var(--line);
+  padding:10px 12px;
+  background:var(--paper);
+  width:100%;
+  margin-bottom:14px;
+}
+label{font-size:0.75rem; font-family:var(--font-display); display:block; margin-bottom:6px;}
+
+/* ---------- Nav ---------- */
+header.site{
+  border-bottom:3px solid var(--line);
+  background:var(--cream);
+  position:sticky; top:0; z-index:50;
+}
+.nav{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 24px; max-width:1100px; margin:0 auto;
+}
+.brand{
+  display:flex; align-items:center; gap:10px;
+  font-family:var(--font-display); font-size:0.85rem; text-decoration:none; color:var(--ink);
+}
+.brand .cube{
+  width:22px;height:22px; background:var(--moss); border:2px solid var(--line);
+  box-shadow:3px 3px 0 var(--line);
+}
+.nav-links{display:flex; gap:6px; flex-wrap:wrap;}
+.nav-links a{
+  font-size:0.78rem; text-decoration:none; color:var(--ink);
+  padding:8px 12px; border:2px solid transparent;
+}
+.nav-links a:hover{border-color:var(--line); background:var(--paper);}
+.nav-links a.active{border-color:var(--line); background:var(--sunset);}
+#nav-auth a{background:var(--moss); color:#fff; border:2px solid var(--line);}
+
+/* ---------- Hero ---------- */
+.hero{
+  padding:64px 0 48px;
+  border-bottom:3px solid var(--line);
+  position:relative; overflow:hidden;
+}
+.hero-grid{
+  display:grid; grid-template-columns:1.1fr 0.9fr; gap:40px; align-items:center;
+}
+.eyebrow{
+  font-family:var(--font-display); font-size:0.6rem; color:var(--moss-dark);
+  background:#dff2e6; display:inline-block; padding:6px 10px; border:2px solid var(--moss-dark); margin-bottom:16px;
+}
+.hero h1{font-size:2rem;}
+.hero p.lead{font-size:1.05rem; margin:18px 0 28px;}
+.cta-row{display:flex; gap:14px; flex-wrap:wrap;}
+
+.voxel-stack{display:grid; place-items:center;}
+.iso-cube{
+  width:200px; height:200px; position:relative; transform-style:preserve-3d;
+  animation: float 4s ease-in-out infinite;
+}
+@keyframes float{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+
+/* ---------- Sections ---------- */
+section{padding:56px 0;}
+section.alt{background:#fff; border-top:3px solid var(--line); border-bottom:3px solid var(--line);}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+.grid-2{display:grid; grid-template-columns:repeat(2,1fr); gap:20px;}
+@media(max-width:800px){
+  .grid-3, .grid-2, .hero-grid{grid-template-columns:1fr;}
+}
+
+.tag{
+  font-family:var(--font-display); font-size:0.55rem;
+  display:inline-block; padding:4px 8px; border:2px solid var(--line); margin-right:6px; margin-bottom:10px;
+}
+.tag.beginner{background:#dff2e6;}
+.tag.tool{background:#e6f3fb;}
+
+footer.site{
+  border-top:3px solid var(--line); padding:32px 0; text-align:center; font-size:0.85rem; color:var(--stone);
+}
+
+/* ---------- Roadmap ---------- */
+.roadmap-path{
+  display:flex; flex-direction:column; gap:0; position:relative;
+}
+.road-stage{
+  display:flex; align-items:flex-start; gap:18px; padding:22px 0; position:relative;
+}
+.road-stage:not(:last-child)::after{
+  content:""; position:absolute; left:29px; top:60px; bottom:-22px; width:4px; background:var(--line);
+}
+.stage-num{
+  width:60px; height:60px; min-width:60px; background:var(--sky); border:3px solid var(--line);
+  display:grid; place-items:center; font-family:var(--font-display); font-size:0.85rem;
+  box-shadow:3px 3px 0 var(--line); z-index:1;
+}
+.stage-num.done{background:var(--moss); color:#fff;}
+.stage-body{flex:1;}
+.stage-body h3{margin:2px 0 6px;}
+.avatars{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+.avatar{
+  width:34px; height:34px; border:2px solid var(--line); display:grid; place-items:center;
+  font-family:var(--font-display); font-size:0.6rem; color:#fff; box-shadow:2px 2px 0 var(--line);
+  cursor:default;
+}
+.place-row{margin-top:14px;}
+
+/* ---------- Community / posts ---------- */
+.post{
+  border:3px solid var(--line); background:#fff; padding:18px; margin-bottom:16px;
+}
+.post-head{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+.post-head .avatar{width:28px;height:28px;font-size:0.55rem;}
+.post-meta{font-size:0.75rem; color:var(--stone);}
+
+.video-embed{
+  position:relative; padding-bottom:56.25%; height:0; border:3px solid var(--line); margin-bottom:14px;
+}
+.video-embed iframe{position:absolute; top:0; left:0; width:100%; height:100%;}
+
+.empty-state{
+  border:3px dashed var(--stone); padding:30px; text-align:center; color:var(--stone); font-size:0.9rem;
+}
+
+.pill-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;}
+
+.notice{
+  border:3px solid var(--line); background:#fff7df; padding:12px 14px; font-size:0.85rem; margin-bottom:18px;
+}

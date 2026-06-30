@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community — Blockcraft Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <nav class="nav">
+    <a class="brand" href="index.html"><span class="cube"></span> BLOCKCRAFT STUDIO</a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="portfolio.html">Portfolio</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="community.html">Community</a>
+      <span id="nav-auth"></span>
+    </div>
+  </nav>
+</header>
+
+<section style="padding-bottom:0;">
+  <div class="wrap">
+    <span class="eyebrow">COMMUNITY</span>
+    <h1>The community wall</h1>
+    <p class="lead">Share your builds, ask questions, and see what other beginner 3D artists are working on.</p>
+  </div>
+</section>
+
+<section id="auth-section">
+  <div class="wrap grid-2">
+    <div class="card">
+      <h3>Log in</h3>
+      <form id="login-form">
+        <label for="li-user">Username</label>
+        <input id="li-user" required>
+        <label for="li-pass">Password</label>
+        <input id="li-pass" type="password" required>
+        <button class="btn green" type="submit">Log in</button>
+        <p id="login-msg" style="font-size:0.8rem; margin-top:10px; color:#b03434;"></p>
+      </form>
+    </div>
+    <div class="card">
+      <h3>Join the community</h3>
+      <form id="register-form">
+        <label for="re-name">Display name</label>
+        <input id="re-name" required placeholder="What should we call you?">
+        <label for="re-user">Username</label>
+        <input id="re-user" required placeholder="No spaces, 3+ characters">
+        <label for="re-pass">Password</label>
+        <input id="re-pass" type="password" required placeholder="4+ characters">
+        <button class="btn sky" type="submit">Create account</button>
+        <p id="register-msg" style="font-size:0.8rem; margin-top:10px; color:#b03434;"></p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="composer-section" style="display:none;">
+  <div class="wrap" style="max-width:600px;">
+    <h2>// Share something</h2>
+    <form id="post-form" class="card">
+      <label for="p-text">Your post</label>
+      <textarea id="p-text" rows="3" required placeholder="What are you building or thinking about?"></textarea>
+      <label for="p-yt">YouTube link (optional)</label>
+      <input id="p-yt" placeholder="https://youtube.com/watch?v=...">
+      <button class="btn green" type="submit">Post to the wall</button>
+    </form>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>// Latest posts</h2>
+    <div id="posts-feed"></div>
+    <div id="empty-posts" class="empty-state" style="display:none;">No posts yet — be the first to share something!</div>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">Blockcraft Studio — built block by block. A learning portfolio, not affiliated with any game studio.</div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+function refreshAuthUI(){
+  const user = BC.currentUser();
+  document.getElementById("auth-section").style.display = user ? "none" : "block";
+  document.getElementById("composer-section").style.display = user ? "block" : "none";
+}
+
+document.getElementById("login-form").addEventListener("submit", e=>{
+  e.preventDefault();
+  const r = BC.login(document.getElementById("li-user").value.trim(), document.getElementById("li-pass").value);
+  if(!r.ok){ document.getElementById("login-msg").textContent = r.error; return; }
+  location.reload();
+});
+
+document.getElementById("register-form").addEventListener("submit", e=>{
+  e.preventDefault();
+  const r = BC.register(
+    document.getElementById("re-user").value.trim(),
+    document.getElementById("re-name").value.trim(),
+    document.getElementById("re-pass").value
+  );
+  if(!r.ok){ document.getElementById("register-msg").textContent = r.error; return; }
+  location.reload();
+});
+
+document.getElementById("post-form").addEventListener("submit", e=>{
+  e.preventDefault();
+  const text = document.getElementById("p-text").value.trim();
+  const yt = document.getElementById("p-yt").value.trim();
+  BC.addPost(text, yt);
+  e.target.reset();
+  renderFeed();
+});
+
+function renderFeed(){
+  const feed = document.getElementById("posts-feed");
+  const posts = BC.posts();
+  const user = BC.currentUser();
+  document.getElementById("empty-posts").style.display = posts.length ? "none" : "block";
+  feed.innerHTML = posts.map(p => `
+    <div class="post">
+      <div class="post-head">
+        <div class="avatar" style="background:${BC.colorFor(p.username)}">${BC.initials(p.displayName)}</div>
+        <div>
+          <div style="font-weight:600; font-size:0.9rem;">${p.displayName}</div>
+          <div class="post-meta">${BC.timeAgo(p.date)}</div>
+        </div>
+      </div>
+      <p>${p.text}</p>
+      ${p.yt ? (BC.ytEmbed(p.yt) || "") : ""}
+      ${user && (user.username===p.username || user.isAdmin) ? `<button class="btn small danger" onclick="removePost('${p.id}')">Delete</button>` : ""}
+    </div>
+  `).join("");
+}
+
+function removePost(id){
+  BC.deletePost(id);
+  renderFeed();
+}
+
+refreshAuthUI();
+renderFeed();
+</script>
+</body>
+</html>

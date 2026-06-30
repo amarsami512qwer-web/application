@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roadmap — Blockcraft Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <nav class="nav">
+    <a class="brand" href="index.html"><span class="cube"></span> BLOCKCRAFT STUDIO</a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="portfolio.html">Portfolio</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="community.html">Community</a>
+      <span id="nav-auth"></span>
+    </div>
+  </nav>
+</header>
+
+<section style="padding-bottom:0;">
+  <div class="wrap">
+    <span class="eyebrow">ROADMAP</span>
+    <h1>The path to 3D mastery</h1>
+    <p class="lead">Six stages, set by the studio admin. Find your block on the path — everyone's avatar shows up at the stage they've reached, like pieces on a board.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div id="my-stage-box"></div>
+    <div class="roadmap-path" id="roadmap-path" style="margin-top:24px;"></div>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">Blockcraft Studio — built block by block. A learning portfolio, not affiliated with any game studio.</div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+function renderBox(){
+  const box = document.getElementById("my-stage-box");
+  const user = BC.currentUser();
+  if(!user){
+    box.innerHTML = `<div class="notice">Want to place yourself on the path? <a href="community.html">Log in or join the community</a> first.</div>`;
+    return;
+  }
+  const prog = BC.progress();
+  const current = prog[user.username] ?? 0;
+  box.innerHTML = `
+    <div class="notice">
+      You're placed at stage <strong>${current+1}: ${BC.STAGES[current].name}</strong>.
+      <select id="stage-select" style="width:auto; display:inline-block; margin:0 8px; padding:6px 8px;">
+        ${BC.STAGES.map((s,i)=>`<option value="${i}" ${i===current?"selected":""}>${i+1}. ${s.name}</option>`).join("")}
+      </select>
+      <button class="btn small green" id="stage-save">Update my stage</button>
+    </div>
+  `;
+  document.getElementById("stage-save").addEventListener("click", ()=>{
+    const v = parseInt(document.getElementById("stage-select").value,10);
+    BC.setStage(user.username, v);
+    renderBox();
+    renderPath();
+  });
+}
+
+function renderPath(){
+  const path = document.getElementById("roadmap-path");
+  const prog = BC.progress();
+  const users = BC.users();
+  path.innerHTML = BC.STAGES.map((s,i)=>{
+    const here = users.filter(u => (prog[u.username] ?? 0) === i);
+    return `
+      <div class="road-stage">
+        <div class="stage-num ${i===0?'done':''}">${i+1}</div>
+        <div class="stage-body">
+          <h3>${s.name}</h3>
+          <p style="font-size:0.9rem;">${s.desc}</p>
+          <div class="avatars">
+            ${here.length ? here.map(u=>`<div class="avatar" title="${u.displayName}" style="background:${BC.colorFor(u.username)}">${BC.initials(u.displayName)}</div>`).join("") : `<span style="font-size:0.75rem; color:var(--stone);">No one here yet</span>`}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+renderBox();
+renderPath();
+</script>
+</body>
+</html>

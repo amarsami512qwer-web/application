@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio — Blockcraft Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <nav class="nav">
+    <a class="brand" href="index.html"><span class="cube"></span> BLOCKCRAFT STUDIO</a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="portfolio.html">Portfolio</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="community.html">Community</a>
+      <span id="nav-auth"></span>
+    </div>
+  </nav>
+</header>
+
+<section style="padding-bottom:0;">
+  <div class="wrap">
+    <span class="eyebrow">PORTFOLIO</span>
+    <h1>My builds & demos</h1>
+    <p class="lead">Every model, scene, and timelapse I've finished — newest first. Click a card to watch the YouTube video.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div id="demo-grid" class="grid-3"></div>
+    <div id="empty-demos" class="empty-state" style="display:none; margin-top:20px;">
+      No builds posted yet — add your first one below to kick off the portfolio.
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap" style="max-width:560px;">
+    <h2>// Add a build to the portfolio</h2>
+    <p style="margin-top:-10px; margin-bottom:18px; font-size:0.85rem; color:var(--stone);">
+      This is your showcase — add the title, a short note, and paste your YouTube link (or leave it blank for an image-only entry described in the note).
+    </p>
+    <form id="demo-form" class="card">
+      <label for="d-title">Build title</label>
+      <input id="d-title" required placeholder="e.g. My First Voxel Sword">
+      <label for="d-desc">Short description</label>
+      <textarea id="d-desc" rows="3" required placeholder="What did you make and what did you learn?"></textarea>
+      <label for="d-yt">YouTube link (optional)</label>
+      <input id="d-yt" placeholder="https://youtube.com/watch?v=...">
+      <button class="btn green" type="submit">Add to portfolio</button>
+      <p id="demo-msg" style="font-size:0.8rem; margin-top:10px;"></p>
+    </form>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">Blockcraft Studio — built block by block. A learning portfolio, not affiliated with any game studio.</div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+function demos(){ return JSON.parse(localStorage.getItem("bc_demos")||"[]"); }
+function saveDemos(d){ localStorage.setItem("bc_demos", JSON.stringify(d)); }
+
+function render(){
+  const grid = document.getElementById("demo-grid");
+  const list = demos();
+  document.getElementById("empty-demos").style.display = list.length ? "none" : "block";
+  grid.innerHTML = list.map(d => `
+    <div class="card">
+      ${d.yt ? BC.ytEmbed(d.yt) || "" : ""}
+      <h3>${d.title}</h3>
+      <p style="font-size:0.9rem;">${d.desc}</p>
+      <div class="post-meta">added ${BC.timeAgo(d.date)}</div>
+      <button class="btn small danger" style="margin-top:10px;" onclick="removeDemo('${d.id}')">Remove</button>
+    </div>
+  `).join("");
+}
+
+function removeDemo(id){
+  saveDemos(demos().filter(d=>d.id!==id));
+  render();
+}
+
+document.getElementById("demo-form").addEventListener("submit", e=>{
+  e.preventDefault();
+  const title = document.getElementById("d-title").value.trim();
+  const desc = document.getElementById("d-desc").value.trim();
+  const yt = document.getElementById("d-yt").value.trim();
+  const list = demos();
+  list.unshift({ id: Date.now().toString(36), title, desc, yt, date: new Date().toISOString() });
+  saveDemos(list);
+  e.target.reset();
+  document.getElementById("demo-msg").textContent = "Added! Scroll up to see it in your portfolio.";
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

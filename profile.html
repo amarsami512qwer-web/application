@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Profile — Blockcraft Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <nav class="nav">
+    <a class="brand" href="index.html"><span class="cube"></span> BLOCKCRAFT STUDIO</a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="portfolio.html">Portfolio</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="community.html">Community</a>
+      <span id="nav-auth"></span>
+    </div>
+  </nav>
+</header>
+
+<section>
+  <div class="wrap" id="profile-wrap">
+    <!-- filled by script -->
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">Blockcraft Studio — built block by block. A learning portfolio, not affiliated with any game studio.</div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+const wrap = document.getElementById("profile-wrap");
+const user = BC.currentUser();
+
+if(!user){
+  wrap.innerHTML = `<div class="notice">You're not logged in. <a href="community.html">Go log in or join</a>.</div>`;
+} else {
+  const prog = BC.progress();
+  const stage = prog[user.username] ?? 0;
+  const myPosts = BC.posts().filter(p=>p.username===user.username);
+  wrap.innerHTML = `
+    <span class="eyebrow">PROFILE</span>
+    <h1 style="display:flex; align-items:center; gap:14px;">
+      <span class="avatar" style="width:46px;height:46px;font-size:0.8rem;background:${BC.colorFor(user.username)}">${BC.initials(user.displayName)}</span>
+      ${user.displayName}
+    </h1>
+    <p class="lead">Username: @${user.username} ${user.isAdmin ? '<span class="tag tool">ADMIN</span>' : ''} — member since ${new Date(user.joined).toLocaleDateString()}</p>
+
+    <div class="grid-2" style="margin-top:24px;">
+      <div class="card">
+        <h3>Roadmap stage</h3>
+        <p>Currently at stage <strong>${stage+1}: ${BC.STAGES[stage].name}</strong></p>
+        <a class="btn small sky" href="roadmap.html">Update on roadmap →</a>
+      </div>
+      <div class="card">
+        <h3>Account</h3>
+        <p style="font-size:0.9rem;">This profile lives in your browser's local storage for this free, no-backend demo site.</p>
+        <button class="btn small danger" id="logout-btn">Log out</button>
+      </div>
+    </div>
+
+    <h2 style="margin-top:36px;">// My posts</h2>
+    <div id="my-posts"></div>
+    ${myPosts.length===0 ? '<div class="empty-state">You haven\'t posted yet — head to the Community wall to share something.</div>' : ''}
+  `;
+  document.getElementById("logout-btn").addEventListener("click", ()=>BC.logout());
+  document.getElementById("my-posts").innerHTML = myPosts.map(p => `
+    <div class="post">
+      <p>${p.text}</p>
+      ${p.yt ? (BC.ytEmbed(p.yt) || "") : ""}
+      <div class="post-meta">${BC.timeAgo(p.date)}</div>
+    </div>
+  `).join("");
+}
+</script>
+</body>
+</html>
