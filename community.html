@@ -85,9 +85,9 @@
   <div class="wrap">Blockcraft Studio — built block by block. A learning portfolio, not affiliated with any game studio.</div>
 </footer>
 
-<script src="app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script src="app.js"></script>
 <script>
 function refreshAuthUI(){
   const user = BC.currentUser();
@@ -117,14 +117,13 @@ document.getElementById("post-form").addEventListener("submit", e=>{
   e.preventDefault();
   const text = document.getElementById("p-text").value.trim();
   const yt = document.getElementById("p-yt").value.trim();
-  BC.addPost(text, yt);
-  e.target.reset();
-  renderFeed();
+  const r = BC.addPost(text, yt);
+  if(r.ok) e.target.reset();
+
 });
 
-function renderFeed(){
+function renderFeed(posts){
   const feed = document.getElementById("posts-feed");
-  const posts = BC.posts();
   const user = BC.currentUser();
   document.getElementById("empty-posts").style.display = posts.length ? "none" : "block";
   feed.innerHTML = posts.map(p => `
@@ -145,11 +144,10 @@ function renderFeed(){
 
 function removePost(id){
   BC.deletePost(id);
-  renderFeed();
 }
 
 refreshAuthUI();
-renderFeed();
+BC.onPostsChange(renderFeed); 
 </script>
 </body>
 </html>
