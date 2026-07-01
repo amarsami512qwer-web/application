@@ -9,7 +9,6 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <header class="site">
   <nav class="nav">
     <a class="brand" href="index.html"><span class="cube"></span> BLOCKCRAFT STUDIO</a>
@@ -22,17 +21,15 @@
     </div>
   </nav>
 </header>
-
 <section>
   <div class="wrap" id="profile-wrap">
     <!-- filled by script -->
   </div>
 </section>
-
 <footer class="site">
   <div class="wrap">Blockcraft Studio — built block by block. A learning portfolio, not affiliated with any game studio.</div>
 </footer>
-  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
 <script src="app.js"></script>
 <script>
@@ -44,7 +41,6 @@ if(!user){
 } else {
   const prog = BC.progress();
   const stage = prog[user.username] ?? 0;
-  const myPosts = BC.posts().filter(p=>p.username===user.username);
   wrap.innerHTML = `
     <span class="eyebrow">PROFILE</span>
     <h1 style="display:flex; align-items:center; gap:14px;">
@@ -52,7 +48,6 @@ if(!user){
       ${user.displayName}
     </h1>
     <p class="lead">Username: @${user.username} ${user.isAdmin ? '<span class="tag tool">ADMIN</span>' : ''} — member since ${new Date(user.joined).toLocaleDateString()}</p>
-
     <div class="grid-2" style="margin-top:24px;">
       <div class="card">
         <h3>Roadmap stage</h3>
@@ -65,19 +60,24 @@ if(!user){
         <button class="btn small danger" id="logout-btn">Log out</button>
       </div>
     </div>
-
     <h2 style="margin-top:36px;">// My posts</h2>
     <div id="my-posts"></div>
-    ${myPosts.length===0 ? '<div class="empty-state">You haven\'t posted yet — head to the Community wall to share something.</div>' : ''}
+    <div id="my-posts-empty" class="empty-state" style="display:none;">You haven't posted yet — head to the Community wall to share something.</div>
   `;
   document.getElementById("logout-btn").addEventListener("click", ()=>BC.logout());
-  document.getElementById("my-posts").innerHTML = myPosts.map(p => `
-    <div class="post">
-      <p>${p.text}</p>
-      ${p.yt ? (BC.ytEmbed(p.yt) || "") : ""}
-      <div class="post-meta">${BC.timeAgo(p.date)}</div>
-    </div>
-  `).join("");
+
+  // Live: renders once posts arrive, and again on any future change
+  BC.onPostsChange(allPosts => {
+    const myPosts = allPosts.filter(p => p.username === user.username);
+    document.getElementById("my-posts-empty").style.display = myPosts.length ? "none" : "block";
+    document.getElementById("my-posts").innerHTML = myPosts.map(p => `
+      <div class="post">
+        <p>${p.text}</p>
+        ${p.yt ? (BC.ytEmbed(p.yt) || "") : ""}
+        <div class="post-meta">${BC.timeAgo(p.date)}</div>
+      </div>
+    `).join("");
+  });
 }
 </script>
 </body>
