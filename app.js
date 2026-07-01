@@ -1,9 +1,25 @@
 /* ============================================
    BLOCKCRAFT STUDIO — app.js
-   Lightweight client-side "backend" using localStorage.
-   Free to host anywhere static (Netlify, GitHub Pages, Vercel)
-   since there is no server required.
+   Users + lesson progress: localStorage (per-device).
+   Community posts: Firebase Realtime Database (shared —
+   everyone who visits the site sees the same posts, live).
    ============================================ */
+
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAk5KUEWvbTHS0wvpURqxFkBZEK0-gNwJ8",
+  authDomain: "t9-os-3b3ba.firebaseapp.com",
+  databaseURL: "https://t9-os-3b3ba-default-rtdb.firebaseio.com",
+  projectId: "t9-os-3b3ba",
+  storageBucket: "t9-os-3b3ba.firebasestorage.app",
+  messagingSenderId: "263567071189",
+  appId: "1:263567071189:web:9c0007563982992e2a8f5c",
+  measurementId: "G-JLQR3X28BW"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const postsRef = db.ref("posts");
 
 const BC = {
   STAGES: [
@@ -29,9 +45,6 @@ const BC = {
 
   users(){ return JSON.parse(localStorage.getItem("bc_users") || "[]"); },
   saveUsers(u){ localStorage.setItem("bc_users", JSON.stringify(u)); },
-
-  posts(){ return JSON.parse(localStorage.getItem("bc_posts") || "[]"); },
-  savePosts(p){ localStorage.setItem("bc_posts", JSON.stringify(p)); },
 
   progress(){ return JSON.parse(localStorage.getItem("bc_progress") || "{}"); },
   saveProgress(p){ localStorage.setItem("bc_progress", JSON.stringify(p)); },
@@ -66,24 +79,47 @@ const BC = {
     return { ok:true };
   },
 
+
+  _postsCache: [],
+  _postsListeners: [],
+
+  onPostsChange(cb){
+    this._postsListeners.push(cb);
+    cb(this._postsCache);
+  },
+
+  posts(){
+
+    return this._postsCache;
+  },
+
+  _startPostsSync(){
+    postsRef.orderByChild("date").on("value", snapshot => {
+      const val = snapshot.val() || {};
+      const list = Object.keys(val).map(key => ({ id: key, ...val[key] }));
+      list.sort((a,b) => new Date(b.date) - new Date(a.date)); // newest first
+      this._postsCache = list;
+      this._postsListeners.forEach(cb => cb(list));
+    });
+  },
+
   addPost(text, yt){
     const user = this.currentUser();
     if(!user) return { ok:false, error:"Log in to share a post." };
-    const posts = this.posts();
-    posts.unshift({
-      id: Date.now().toString(36),
+    if(!text || !text.trim()) return { ok:false, error:"Write something before posting." };
+
+    postsRef.push({
       username: user.username,
       displayName: user.displayName,
-      text, yt: yt || "",
+      text: text.trim(),
+      yt: yt || "",
       date: new Date().toISOString(),
     });
-    this.savePosts(posts);
     return { ok:true };
   },
 
   deletePost(id){
-    const posts = this.posts().filter(p=>p.id!==id);
-    this.savePosts(posts);
+    postsRef.child(id).remove();
   },
 
   setStage(username, stageIndex){
@@ -109,7 +145,6 @@ const BC = {
     return Math.floor(diff/86400)+"d ago";
   },
 
-  /* ----- header rendering (auth area + active link) ----- */
   mountHeader(){
     const authEl = document.getElementById("nav-auth");
     if(!authEl) return;
@@ -128,4 +163,5 @@ const BC = {
   },
 };
 
+BC._startPostsSync();
 document.addEventListener("DOMContentLoaded", ()=> BC.mountHeader());
